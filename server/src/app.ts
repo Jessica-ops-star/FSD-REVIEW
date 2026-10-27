@@ -28,6 +28,21 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Root route welcoming users and directing to frontend
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ONLINE',
+    message: 'Spice Garden Restaurant Platform API is running smoothly 🚀',
+    frontend: 'https://fsd-review-v1aa.vercel.app',
+    healthCheck: '/api/health',
+    endpoints: {
+      menu: '/api/menu/items',
+      categories: '/api/menu/categories',
+      auth: '/api/auth/login'
+    }
+  });
+});
+
 // API Base Health Check
 app.get('/api/health', (req, res) => {
   res.json({
