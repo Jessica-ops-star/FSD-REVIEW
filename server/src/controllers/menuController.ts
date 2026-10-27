@@ -2,16 +2,12 @@ import { Request, Response } from 'express';
 import Category from '../models/Category';
 import MenuItem from '../models/MenuItem';
 import { notifyMenuUpdated } from '../socket/socketManager';
-import { mockCategories, mockMenuItems } from "../data/mockMenu";
 
 // @desc    Get all categories
 // @route   GET /api/menu/categories
 // @access  Public
 export const getCategories = async (req: Request, res: Response): Promise<void> => {
   try {
-    if (process.env.MOCK_DATA === "true") {
-  return res.json(mockCategories);
-}
     const categories = await Category.find({ isActive: true }).sort({ displayOrder: 1, name: 1 });
     res.json(categories);
   } catch (error: any) {
@@ -96,38 +92,6 @@ export const deleteCategory = async (req: Request, res: Response): Promise<void>
 // @access  Public
 export const getMenuItems = async (req: Request, res: Response): Promise<void> => {
   try {
-    if (process.env.MOCK_DATA === "true") {
-  const { categoryId, search, availableOnly, sortBy, sortOrder } = req.query;
-
-  let items = [...mockMenuItems];
-
-  if (categoryId && categoryId !== "all") {
-    items = items.filter(item => item.category._id === categoryId);
-  }
-
-  if (typeof search === "string" && search.trim()) {
-    const term = search.trim().toLowerCase();
-    items = items.filter(item =>
-      item.name.toLowerCase().includes(term) ||
-      item.description.toLowerCase().includes(term) ||
-      item.category.name.toLowerCase().includes(term)
-    );
-  }
-
-  if (availableOnly === "true") {
-    items = items.filter(item => item.isAvailable);
-  }
-
-  if (sortBy === "price" || sortBy === "name") {
-    const key = sortBy;
-    const direction = sortOrder === "desc" ? -1 : 1;
-    items.sort((a, b) =>
-      (a[key] < b[key] ? -1 : a[key] > b[key] ? 1 : 0) * direction
-    );
-  }
-
-  return res.json(items);
-}
     const { categoryId, search, availableOnly, sortBy, sortOrder } = req.query;
 
     const filter: any = {};
