@@ -21,7 +21,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
+  const { user, switchDemoRole } = useAuth();
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -47,7 +47,29 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const closeCart = () => setIsOpen(false);
 
   const addToCart = async (menuItemId: string, quantity: number = 1): Promise<boolean> => {
-    if (!user) return false;
+    let currentUser = user;
+
+    if (!currentUser) {
+      const confirmDemo = window.confirm(
+        'You need to be signed in as a Customer to add items to your cart.\n\nClick OK to automatically sign in with the Customer demo account, or Cancel to sign in manually.'
+      );
+      if (confirmDemo) {
+        await switchDemoRole('CUSTOMER');
+      } else {
+        window.location.href = '/login?role=customer';
+        return false;
+      }
+    } else if (currentUser.role !== 'CUSTOMER') {
+      const confirmSwitch = window.confirm(
+        `You are currently logged in as ${currentUser.role}.\n\nOnly Customers can add items to the cart. Would you like to switch to the Customer role now?`
+      );
+      if (confirmSwitch) {
+        await switchDemoRole('CUSTOMER');
+      } else {
+        return false;
+      }
+    }
+
     setLoading(true);
     try {
       const res: any = await cartAPI.addToCart(menuItemId, quantity);

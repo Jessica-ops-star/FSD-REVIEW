@@ -1,4 +1,5 @@
 import { Response } from 'express';
+import mongoose from 'mongoose';
 import Cart from '../models/Cart';
 import MenuItem from '../models/MenuItem';
 import { AuthRequest } from '../middleware/authMiddleware';
@@ -45,6 +46,13 @@ export const addToCart = async (req: AuthRequest, res: Response): Promise<void> 
 
     if (!menuItemId) {
       res.status(400).json({ message: 'menuItemId is required' });
+      return;
+    }
+
+    if (!mongoose.isValidObjectId(menuItemId)) {
+      res.status(400).json({
+        message: 'Invalid dish ID. Please refresh your browser page to reload the latest menu dishes from MongoDB.',
+      });
       return;
     }
 
