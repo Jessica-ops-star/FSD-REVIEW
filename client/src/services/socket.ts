@@ -6,7 +6,9 @@ export const getSocket = (): Socket => {
   if (!socket) {
     const token = localStorage.getItem('token');
 
-    socket = io(window.location.origin, {
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_API_URL?.replace(/\/api$/, '') || window.location.origin;
+
+    socket = io(socketUrl, {
       autoConnect: true,
       reconnection: true,
       reconnectionAttempts: 10,

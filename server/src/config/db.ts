@@ -7,9 +7,10 @@ export const connectDB = async (): Promise<typeof mongoose> => {
     const connStr = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/restaurant_platform';
     console.log(`Attempting MongoDB connection at ${connStr}...`);
     
-    // Set 3 second timeout for initial connection attempt to local MongoDB
+    // Set proper timeout: 30 seconds for Cloud Atlas, 3 seconds for local fallback
+    const isCloud = connStr.includes('mongodb+srv') || connStr.includes('mongodb.net');
     const conn = await mongoose.connect(connStr, {
-      serverSelectionTimeoutMS: 3000,
+      serverSelectionTimeoutMS: isCloud ? 30000 : 3000,
     });
     
     console.log(`✅ MongoDB Connected: ${conn.connection.host}/${conn.connection.name}`);
